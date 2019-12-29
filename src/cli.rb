@@ -26,7 +26,7 @@ module TD
       items = Data.items
 
       if items.empty?
-        puts "Looks like there's nothing to do!"
+        puts "Looks like there are no items!"
         return
       end
 
