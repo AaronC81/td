@@ -12,6 +12,10 @@ module TD
         TD::CLI.mark_done(args[1].to_i)
       elsif args.length == 2 && args[0] == 'not'
         TD::CLI.mark_not_done(args[1].to_i)
+      elsif args == ['count']
+        TD::CLI.count
+      elsif args == ['open']
+        TD::CLI.open_board
       else
         TD::CLI.unknown_command
       end
@@ -60,6 +64,34 @@ module TD
       item = Data.item_at_index(index - 1, :done)
       Data.mark_not_done(item.trello_card)
       puts "Marked #{item.title.bright} as #{"Not Done".bright}."
+    end
+
+    # Prints a concise count of the tasks remaining.
+    def self.count
+      items = Data.items
+
+      if items.empty?
+        puts "Looks like there are no items!"
+        return
+      end
+
+      done, to_do = items.partition(&:done)
+
+      if done.empty?
+        puts "You have #{to_do.length} items left to do today."
+      elsif to_do.empty?
+        puts "You've done all #{done.length} items today!"
+      else
+        puts "You've done #{done.length} of your #{items.length} items today."
+      end
+    end
+
+    # Opens the Trello board which contains the "Today" list in a web browser,
+    # printing confirmation.
+    def self.open_board
+      board = Trello::List.find(Config.today_list).board
+      puts "Opening #{board.name.bright} in a browser"
+      `xdg-open #{board.url}`
     end
 
     # Prints an "unknown command" message.
